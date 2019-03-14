@@ -231,7 +231,7 @@ Data uses <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a> license'
 		"""
 		Creates the Map. To comply with map usage, a custom tile link has been provided with associated license display requests.
 		DO NOT CHANGE THESE. The author is/will not be responsible for any legal action taken against the user of this application.
-		This will also be stated in the github page at: 
+		Please see github page for licenses: https://github.com/dsh011/Pathfinder
 		"""
 	def createMapFile(self, Latitude, Longitude, ImgName, ImgDate, Zip):
 		dlg = wx.DirDialog(self, "Select Photo Directory:")
