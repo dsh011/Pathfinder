@@ -17,11 +17,11 @@ Libraries included are:
 This program is not currently licensed under any particular license but other libraries are. Please see the links below in credits for their respective licenses.
 
 Credits:
-OpenRouteService: https://github.com/GIScience/openrouteservice
-Folium: https://github.com/python-visualization/folium
-PIL: https://pillow.readthedocs.io/en/stable/
-WxPython: https://wxpython.org/
-Leaflet Routing Machine: http://www.liedman.net/leaflet-routing-machine/
-Geocoder: https://geocoder.readthedocs.io/
+1. OpenRouteService: https://github.com/GIScience/openrouteservice
+2. Folium: https://github.com/python-visualization/folium
+3. PIL: https://pillow.readthedocs.io/en/stable/
+4. WxPython: https://wxpython.org/
+5. Leaflet Routing Machine: http://www.liedman.net/leaflet-routing-machine/
+6. Geocoder: https://geocoder.readthedocs.io/
 
 If I missed your credit, this was not intentional, please inform me and I will add you to the list.
