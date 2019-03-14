@@ -15,7 +15,8 @@ Libraries included are:
 7. Variety of Python Native Libraries (OS, Time, Threading, SQLite3, etc.)
 8. Cx_Freeze (Packaging Python Code; Developed by Anthony Tuininga)
 
-This program is currently licensed under the MIT License.  
+This program is currently licensed under the MIT License. Libraries in the credits have their own licenses. Please review these before 
+any changes are made. 
 
 Credits:
 1. OpenRouteService: https://github.com/GIScience/openrouteservice
