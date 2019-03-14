@@ -1,4 +1,4 @@
-# WxPathfinder
+# Pathfinder
 Pathfinder is an Open-Source Photo Mapping Tool designed to extract metadata from Photos and plot them on a leaflet map.
 
 This is a project by me to fulfill the project requirements for the Master's of Science degree in Digital Forensics at Sam Houston State University.
@@ -15,7 +15,8 @@ Libraries included are:
 7. Variety of Python Native Libraries (OS, Time, Threading, SQLite3, etc.)
 8. Cx_Freeze (Packaging Python Code; Developed by Anthony Tuininga)
 
-This program is not currently licensed under any particular license but other libraries are. Please see the links below in credits for their respective licenses.
+This program is currently licensed under the MIT License. Libraries in the credits have their own licenses. Please review these before 
+any changes are made. 
 
 Credits:
 1. OpenRouteService: https://github.com/GIScience/openrouteservice
