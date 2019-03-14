@@ -12,6 +12,8 @@ import WxPathfinder as main
 from pubsub import pub
 from threading import Thread
 
+
+
 class ProcessThread(Thread):
     """Worker Thread Class."""
  
@@ -35,7 +37,9 @@ class ProcessThread(Thread):
         types = ['*.jpg', '*.jpeg', '*.tiff']
         gps_data = {}
         exif_data = {}
-        
+        dup_hash = []
+        no_gps = []
+        files_processed = []
         generateThumbnails(self.pathname)
         for imgtype in types:
         	for ImgName in glob.glob(str(self.pathname) + '/' + imgtype):
@@ -54,25 +58,31 @@ class ProcessThread(Thread):
         					lat, lon = get_lat_lon(exif_data)
         					try:
         						g = geocoder.osm([lat, lon], method='reverse')
-        						insertInto(self.c, ImgRename,  imgFile._getexif()[36867], g.address, time.mktime(time.strptime(imgFile._getexif()[36867], '%Y:%m:%d %H:%M:%S')),lat, lon, filehash)
+        						zipcode = g.postal
+        						if zipcode == None:
+        							zipcode = 12345
+        						insertZip(self.c, zipcode)
+        					except sqlite3.IntegrityError:
+        						print()
+        					try:
+        						g = geocoder.osm([lat, lon], method='reverse')
+        						self.c.execute(("""SELECT zip_id from zipcodes WHERE Zip = {}""").format(zipcode))
+        						ZipID = self.c.fetchall()
+        						insertInto(self.c, ImgRename,  imgFile._getexif()[36867], g.address, ZipID[0][0], time.mktime(time.strptime(imgFile._getexif()[36867], '%Y:%m:%d %H:%M:%S')),lat, lon, filehash)
         						self.conn.commit()
+        						files_processed.append(ImgRename)
         						wx.CallAfter(pub.sendMessage, "update", msg="")
         					except sqlite3.IntegrityError:
-        						dlg = wx.MessageDialog(self.mainWindow, "Image has duplicate hash!", "Error!", wx.OK | wx.ICON_ERROR)
-        						dlg.ShowModal()
-        						dlg.Destroy()
+        						dup_hash.append(ImgRename)
+        						wx.CallAfter(pub.sendMessage, "update", msg="")
         				else:
         					exif_data[decoded] = value
-        		else:
-        			dlg = wx.MessageDialog(self.mainWindow, ImgRename + " has no EXIF Data", "Warning!", wx.OK | wx.ICON_EXCLAMATION)
-        			dlg.ShowModal()
-        			dlg.Destroy()
-            
+        					
+        reportDoc(no_gps, dup_hash, files_processed, self.pathname, self.mainWindow)        
 
 #Progress Bar Dialog Box Creation Class
 class MyProgressDialog(wx.Dialog):
     def __init__(self, filecount):
-        """Constructor"""
         wx.Dialog.__init__(self, None, title="Processing")
         self.filecount = filecount
         self.count = 0
@@ -82,7 +92,6 @@ class MyProgressDialog(wx.Dialog):
         sizer.Add(self.progress, 0, wx.EXPAND, 10)
         self.SetSizer(sizer)
  
-        # create a pubsub listener
         pub.subscribe(self.updateProgress, "update")
 
     def updateProgress(self, msg):
@@ -98,6 +107,8 @@ def createconnection(db_file):
 	try:
 		conn = sqlite3.connect(db_file, check_same_thread=False, timeout=10)
 		c = conn.cursor()
+		c.execute("pragma foreign_keys = 1")
+		createZipTable(c)
 		createDefTable(c)
 		return conn
 	except Error as e:
@@ -181,7 +192,7 @@ conversion process, if the image in the database has a duplicate hash it lets th
 if the photo has no exif data it lets the user know at the end.
 
 """
-def get_exif_data(self, conn):
+def preProcessingExif(self, conn):
 	types = ['*.jpg', '*.jpeg', '*.tiff']
 	totalcount = 0
 	dlg = wx.DirDialog(self, "Choose Directory to Scan")
@@ -204,8 +215,6 @@ def get_exif_data(self, conn):
 	ProcessThread(self, totalcount, pathname, conn)
 	dlgProg = MyProgressDialog(totalcount)
 	dlgProg.ShowModal()
-	
-	#reportPDF()
 
 
 #Thumbnail Creation, needed to cut down size of photos. Reason: Pathfinder crashes if it uses full image.
@@ -229,12 +238,31 @@ def generateThumbnails(pathname):
 						if ImgName[0:2] != "T_":
 							# prefix thumbnail file with T_
 							im.save((str(pathname) + '/' + directory + '/' + "T_" + ImgName), 'PNG')
+						else:
+							continue
 
-def reportPDF():
-	c = canvas.Canvas("hello.pdf")
-	c.drawString(100,100,"Hello World")
-	c.showPage()
-	c.save()
+def reportDoc(no_gps, dup_hash, files_processed, pathname, mainWindow):
+
+	f = open(pathname + "/PathfinderReport.txt", "w")
+	f.write("Files Processed:\n")
+	f.write("--------------------------------------------------\n")
+	for i in files_processed:
+		f.write(i + "\n")
+	f.write("\n")
+	f.write("Files Containing No GPS\n")
+	f.write("--------------------------------------------------\n")
+	for j in no_gps:
+		f.write(j + "\n")
+	f.write("\n")
+	f.write("Error Files: Duplicate Hashes \n")
+	f.write("--------------------------------------------------\n")
+	for k in dup_hash:
+		f.write(k + "\n")
+
+	dlg = wx.MessageDialog(mainWindow, "Processing is complete. Please check your report for more details.", "Processing Complete", wx.OK | wx.ICON_INFORMATION)
+	dlg.ShowModal()
+	dlg.Destroy()
+
 
 """
 def testForExif():

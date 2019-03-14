@@ -5,7 +5,7 @@ import wx.html2, os
 import folium
 from folium import IFrame
 from folium import plugins
-from folium.plugins import Draw
+from folium.plugins import Draw, MarkerCluster
 from folium.plugins import routingmachine as rm
 import routingmachine
 from SQLConn import *
@@ -17,16 +17,11 @@ import wx.grid as gridlib
 import sqlite3
 from geojson import Feature, Point, FeatureCollection
 import openrouteservice
+import wx.lib.agw.thumbnailctrl as TC
 
 
-__attrStringGeneral = 'Map creation by <a href="https://python-visualization.github.io/folium/">Folium</a> | \
-Routes from <a href="http://project-osrm.org/">OSRM</a>, \
-Data uses <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a> license'
 
-__attrStringMain = 'Map creation by <a href="https://python-visualization.github.io/folium/">Folium</a> | \
-&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> | \
-Routes from <a href="http://project-osrm.org/">OSRM</a>,\
-Data uses <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a> license'
+
 
 class MyTree(wx.TreeCtrl):
     '''Our customized TreeCtrl class
@@ -63,7 +58,7 @@ class Init(wx.Frame):
 			pathname = fileDialog.GetPath()
 		self.connection = createconnection(pathname)
 		self.Close()
-		MainWindow(None, "Pathfinder 2.1", self.connection)
+		MainWindow(None, "Pathfinder 2.0", self.connection)
 
 	def createDatabase(self, e):
 
@@ -73,8 +68,22 @@ class Init(wx.Frame):
 			pathname = fileDialog.GetPath()
 		self.connection = createconnection(pathname)
 		self.Close()
-		MainWindow(None, "Pathfinder 2.1", self.connection)
+		MainWindow(None, "Pathfinder 2.0", self.connection)
 
+
+class BottomPanel(wx.Panel):
+	def __init__(self, parent):
+		wx.Panel.__init__(self, parent=parent)
+
+		sizer = wx.BoxSizer(wx.VERTICAL)
+
+		self.thumbnail = TC.ThumbnailCtrl(self, imagehandler=TC.NativeImageHandler)
+		sizer.Add(self.thumbnail, 1, wx.EXPAND | wx.ALL, 10)
+
+		
+		self.thumbnail.ShowComboBox()
+		self.SetSizer(sizer)
+		self.SetSize((500, 500)) 
 
 class LeftPanel(wx.Panel):
     def __init__(self, parent):
@@ -106,17 +115,32 @@ class MainWindow(wx.Frame):
 		
 		self.connection = connection
 		self.c = self.connection.cursor()
-		splitter = wx.SplitterWindow(self)
-		self.leftP = LeftPanel(splitter)
-		self.rightP = RightPanel(splitter)
+		topSplitter = wx.SplitterWindow(self)
+		vSplitter = wx.SplitterWindow(topSplitter)
 
+		self.leftP = LeftPanel(vSplitter)
+		self.rightP = RightPanel(vSplitter)
 		
 
-		splitter.SplitVertically(self.leftP, self.rightP)
-		splitter.SetMinimumPaneSize(200)
+		self.__attrStringGeneral = 'Map creation by <a href="https://python-visualization.github.io/folium/">Folium</a> | \
+Routes from <a href="http://project-osrm.org/">OSRM</a>, \
+Data uses <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a> license'
+
+		self.__attrStringMain = 'Map creation by <a href="https://python-visualization.github.io/folium/">Folium</a> | \
+&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> | \
+Routes from <a href="http://project-osrm.org/">OSRM</a>,\
+Data uses <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a> license'
+
+		vSplitter.SplitVertically(self.leftP, self.rightP)
+		vSplitter.SetMinimumPaneSize(200)
+		vSplitter.SetSashGravity(0.5)
+
+		self.botP = BottomPanel(topSplitter)
+		topSplitter.SplitHorizontally(vSplitter, self.botP)
+		topSplitter.SetSashGravity(0.5)
 
 		sizer = wx.BoxSizer(wx.VERTICAL)
-		sizer.Add(splitter, 1, wx.EXPAND)
+		sizer.Add(topSplitter, 1, wx.EXPAND)
 		self.SetSizer(sizer)
 
 		self.tree = self.leftP.tree
@@ -209,54 +233,82 @@ class MainWindow(wx.Frame):
 		DO NOT CHANGE THESE. The author is/will not be responsible for any legal action taken against the user of this application.
 		This will also be stated in the github page at: 
 		"""
-	def createMapFile(self, Latitude, Longitude, ImgName, ImgDate):
+	def createMapFile(self, Latitude, Longitude, ImgName, ImgDate, Zip):
 		dlg = wx.DirDialog(self, "Select Photo Directory:")
 		if dlg.ShowModal() == wx.ID_CANCEL:
 			return     # the user changed their mind
 		pathname = dlg.GetPath()
-
+		self.botP.thumbnail.ShowDir(pathname + "/Thumbnails")
 		coordsPopup = []
 		coordsSearch = []
 		points = []
 		draw = Draw()
-		mymap = folium.Map(location=[38.0, -97.0],zoom_start=5, attr=__attrStringMain)
+		
+		mymap = folium.Map(location=[38.0, -97.0],zoom_start=5, attr=self.__attrStringMain)
+		
+		
 		resolution, width, height = 75, 7, 3
+
 		for j in range(0, len(Latitude)):
-			coordsPopuptemp = [Latitude[j][0], Longitude[j][0]]
-			coordsSearchtemp = [Longitude[j][0], Latitude[j][0]]
+			coordsPopuptemp = [Latitude[j][0], Longitude[j][0]]# Popup needs (Lat, Long) format
+			coordsSearchtemp = [Longitude[j][0], Latitude[j][0]] #Search function needs (Long, Lat) format
 			coordsPopup.append(coordsPopuptemp)
 			coordsSearch.append(coordsSearchtemp)
-
+#----------------Used for Searching--------------------------------------------------------------------
 		for x in range(0, len(coordsSearch)):
+
 			point = Point(coordsSearch[x])
-			my_feature = Feature(geometry=point, properties={"name": ImgName[x][0]})
+			
+			my_feature=Feature(geometry=point, properties={"name": ImgName[x][0]})
 			points.append(my_feature)
-
 		feature_collection = FeatureCollection(points)
-		folium.plugins.Search(feature_collection, search_zoom=20).add_to(mymap)
+
+		glayer=folium.GeoJson(feature_collection, name='Search Layer', show=False).add_to(mymap)
+		folium.plugins.Search(layer=glayer, search_label='name', search_zoom=20).add_to(mymap)
 		
-		for x in range(0, len(coordsPopup)):
-			filename = os.path.join((pathname + '/' + "Thumbnails"), ("T_" + ImgName[x][0]))
-			encoded = base64.b64encode(open(filename, 'rb').read()).decode()
-			htmlstr = '<div style="font-size: 10pt">{}</div><div style="font-size: 10pt">{}</div><div style="font-size: 10pt">{}</div>, <img src="data:image/jpeg;base64,{}", \
-    		width="128px" height="128px">'.format(ImgName[x][0],ImgDate[x][0],str(coordsPopup[x]),encoded)
-			html = folium.Html(htmlstr, script=True)
-			iframe = folium.IFrame(html, width=(width*resolution)+20, height=(height*resolution)+20)
-			popup = folium.Popup(html= html, parse_html=True, max_width=600)
-			folium.Marker(location=coordsPopup[x], popup=popup).add_to(mymap)	
+		
+#------------------------------------------------------------------------------------------------------
 
-			#folium.PolyLine(coords, color="red", weight=2.5, opacity=100).add_to(mymap)
-		#mymap.add_child(folium.LatLngPopup())
+		mc = MarkerCluster(name='Cluster Layer',overlay=True, control=True)
+		for i in range(0, len(Zip)):
+			self.c.execute(('SELECT Latitude from exifdata WHERE zip_id = {}').format(i+1))
+			LatitudeCluster = self.c.fetchall()
+			self.c.execute(('SELECT Longitude from exifdata WHERE zip_id = {}').format(i+1))
+			LongitudeCluster = self.c.fetchall()
+			self.c.execute(('SELECT name from exifdata WHERE zip_id = {}').format(i+1))
+			ImgNameCluster = self.c.fetchall()
+			self.c.execute(('SELECT date_time from exifdata WHERE zip_id = {}').format(i+1))
+			ImgDateCluster = self.c.fetchall()
+
+
+			
+			for x in range(0, len(LatitudeCluster)):
+				filename = os.path.join((pathname + "/Thumbnails"), ("T_" + ImgNameCluster[x][0]))
+				encoded = base64.b64encode(open(filename, 'rb').read()).decode()
+				htmlstr = '<div style="font-size: 10pt">{}</div><div style="font-size: 10pt">{}</div><div style="font-size: 10pt">{}</div>, <img src="data:image/jpeg;base64,{}", \
+	    		width="128px" height="128px">'.format(ImgNameCluster[x][0],ImgDateCluster[x][0],str(coordsPopup[x]),encoded)
+				html = folium.Html(htmlstr, script=True)
+				iframe = folium.IFrame(htmlstr, width=(width*resolution)+20, height=(height*resolution)+20)
+				Popup=folium.Popup(html, max_width=500)
+				folium.Marker(location=[LatitudeCluster[x][0], LongitudeCluster[x][0]], popup=Popup).add_to(mc)
+			
+		
+		
 		rm.RoutingMachine().add_to(mymap)
-		folium.TileLayer(tiles='Mapbox Bright', attr=__attrStringGeneral).add_to(mymap)
-		folium.TileLayer(tiles='Mapbox Control Room', attr=__attrStringGeneral).add_to(mymap)
+		mymap.add_child(mc)
+		
+		folium.TileLayer(tiles='Mapbox Bright', attr=self.__attrStringGeneral).add_to(mymap)
+		folium.TileLayer(tiles='Mapbox Control Room', attr=self.__attrStringGeneral).add_to(mymap)
 
-		#folium.TileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}{r}.png', attr='© OpenStreetMap contributors').add_to(mymap)
-		#folium.TileLayer('CartoDB').add_to(my_map)
+		
+		
+		
+		
 		
 		folium.LayerControl().add_to(mymap)
 		draw.add_to(mymap)
 		
+	
 		try:
 			mymap.save(self.OnSaveAs())
 		except FileNotFoundError:
@@ -270,12 +322,13 @@ class MainWindow(wx.Frame):
 				return     # the user changed their mind
 
 			pathname = fileDialog.GetPath()
+		self.botP.thumbnail.ShowDir(os.path.dirname(pathname) + "/Thumbnails")
+		self.displayTree(e)
 		self.rightP.browser.LoadURL(pathname)
-		#self.rightP.browser.EnableContextMenu()
 
 	#Calls function to extract data from photos
 	def dataExtract(self, e):
-		get_exif_data(self, self.connection)
+		preProcessingExif(self, self.connection)
 
 	def thread_start(self, event):
 		th = threading.Thread(target=openHTMLMap ,args=(e))
@@ -309,9 +362,6 @@ class MainWindow(wx.Frame):
 		coords = []
 
 		if self.dateFilter.IsChecked():
-			#startDate = simpledialog.askstring("Enter Start Date", "Enter Start Date(YYYY/MM/DD hh/mm/ss): ")
-			#endDate = simpledialog.askstring("Enter End Date", "Enter End Date(YYYY/MM/DD hh/mm/ss): ")
-			#filterinfo = c.execute("""SELECT * from exifData WHERE date_time BETWEEN {} AND {}""".format(convstart, convend))
 			self.c.execute(("SELECT Latitude from exifdata WHERE date_unixtimestamp BETWEEN {} AND {}").format(self.convstart, self.convend))
 			Latitude = self.c.fetchall()
 			self.c.execute(("SELECT Longitude from exifdata WHERE date_unixtimestamp BETWEEN {} AND {}").format(self.convstart, self.convend))
@@ -382,20 +432,6 @@ class MainWindow(wx.Frame):
 	def checkFilter(self, e):
 
 		if self.dateFilter.IsChecked():
-			#frame = wx.Frame(None, -1, 'win.py')
-			#frame.SetDimensions(0,0,200,50)
-			#dlgStartDate = wx.TextEntryDialog(frame, "Enter Start Date", "Enter Start Date(YYYY/MM/DD hh/mm/ss): ")
-			#dlgStartDate.ShowModal()
-			#startDate = dlgStartDate.GetValue()
-			#dlgStartDate.Destroy()
-			#dlgEndDate = wx.TextEntryDialog(frame, "Enter End Date", "Enter End Date(YYYY/MM/DD hh/mm/ss): ")
-			#dlgEndDate.ShowModal()
-			#endDate = dlgEndDate.GetValue()
-			#dlgEndDate.Destroy()
-			#startDate = simpledialog.askstring("Enter Start Date", "Enter Start Date(YYYY/MM/DD hh/mm/ss): ")
-			#endDate = simpledialog.askstring("Enter End Date", "Enter End Date(YYYY/MM/DD hh/mm/ss): ")
-
-
 			if self.startDate == '' or self.endDate == '':
 				dlg = wx.MessageDialog(self, "You must enter a date!", "Error!", wx.OK | wx.ICON_ERROR)
 				dlg.ShowModal()
@@ -403,14 +439,14 @@ class MainWindow(wx.Frame):
 				return		
 			else:
 				try:
-					self.convstart = time.mktime(time.strptime(startDate, '%Y/%m/%d %H/%M/%S'))
-					self.convend = time.mktime(time.strptime(endDate, '%Y/%m/%d %H/%M/%S'))
+					self.convstart = time.mktime(time.strptime(self.startDate, '%Y/%m/%d %H/%M/%S'))
+					self.convend = time.mktime(time.strptime(self.endDate, '%Y/%m/%d %H/%M/%S'))
 				except ValueError:
 					dlg = wx.MessageDialog(self, "Date needs to be in correct format!", "Error!", wx.OK | wx.ICON_ERROR)
 					dlg.ShowModal()
 					dlg.Destroy()
 					return
-				#filterinfo = c.execute("""SELECT * from exifData WHERE date_time BETWEEN {} AND {}""".format(convstart, convend))
+				
 				self.c.execute(("SELECT Latitude from exifdata WHERE date_unixtimestamp BETWEEN {} AND {}").format(self.convstart, self.convend))
 				Latitude = self.c.fetchall()
 				self.c.execute(("SELECT Longitude from exifdata WHERE date_unixtimestamp BETWEEN {} AND {}").format(self.convstart, self.convend))
@@ -419,8 +455,11 @@ class MainWindow(wx.Frame):
 				ImgName = self.c.fetchall()
 				self.c.execute(("SELECT date_time from exifdata WHERE date_unixtimestamp BETWEEN {} AND {}").format(self.convstart, self.convend))
 				ImgDate = self.c.fetchall()
-				self.createMapFile(Latitude, Longitude, ImgName, ImgDate)
+				self.c.execute(("""SELECT Zip from exifdata BETWEEN {} AND {}""").format(self.convstart, self.convend))
+				Zip = self.c.fetchall()
+				self.createMapFile(Latitude, Longitude, ImgName, ImgDate, Zip)
 		else:
+			
 			self.c.execute("""SELECT Latitude from exifdata""")
 			Latitude = self.c.fetchall()
 			self.c.execute("""SELECT Longitude from exifdata""")
@@ -429,7 +468,12 @@ class MainWindow(wx.Frame):
 			ImgName = self.c.fetchall()
 			self.c.execute("""SELECT date_time from exifdata""")
 			ImgDate = self.c.fetchall()
-			self.createMapFile(Latitude, Longitude, ImgName, ImgDate)
+			
+			self.c.execute("""SELECT Zip from zipcodes""")
+			Zip = self.c.fetchall()
+
+			self.createMapFile(Latitude, Longitude, ImgName, ImgDate, Zip)
+			
 
 
 if __name__ == "__main__":
