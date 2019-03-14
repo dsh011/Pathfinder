@@ -1,4 +1,4 @@
-# WxPathfinder
+# Pathfinder
 Pathfinder is an Open-Source Photo Mapping Tool designed to extract metadata from Photos and plot them on a leaflet map.
 
 This is a project by me to fulfill the project requirements for the Master's of Science degree in Digital Forensics at Sam Houston State University.
