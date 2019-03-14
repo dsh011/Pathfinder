@@ -13,6 +13,7 @@ Libraries included are:
 5. Geocoder (Geocoding service Library)
 6. OpenRouteService (Needed for Routing Machine; Developed by the GIScience Research Group)
 7. Variety of Python Native Libraries (OS, Time, Threading, SQLite3, etc.)
+8. Cx_Freeze (Packaging Python Code; Developed by Anthony Tuininga)
 
 This program is not currently licensed under any particular license but other libraries are. Please see the links below in credits for their respective licenses.
 
@@ -24,5 +25,6 @@ Credits:
 5. Leaflet Routing Machine: http://www.liedman.net/leaflet-routing-machine/
 6. Geocoder: https://geocoder.readthedocs.io/
 7. Python: https://www.python.org/
+8. Cx_Freeze: https://github.com/anthony-tuininga/cx_Freeze
 
 If I missed your credit, this was not intentional, please inform me and I will add you to the list.
