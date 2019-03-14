@@ -14,5 +14,14 @@ Libraries included are:
 6. OpenRouteService (Needed for Routing Machine; Developed by the GIScience Research Group)
 7. Variety of Python Native Libraries (OS, Time, Threading, SQLite3, etc.)
 
-This program is not currently licensed under any particular license but other libraries are. Please see the links below for their
-respective licenses.
+This program is not currently licensed under any particular license but other libraries are. Please see the links below in credits for their respective licenses.
+
+Credits:
+OpenRouteService: https://github.com/GIScience/openrouteservice
+Folium: https://github.com/python-visualization/folium
+PIL: https://pillow.readthedocs.io/en/stable/
+WxPython: https://wxpython.org/
+Leaflet Routing Machine: http://www.liedman.net/leaflet-routing-machine/
+Geocoder: https://geocoder.readthedocs.io/
+
+If I missed your credit, this was not intentional, please inform me and I will add you to the list.
