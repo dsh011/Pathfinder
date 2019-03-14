@@ -23,5 +23,6 @@ Credits:
 4. WxPython: https://wxpython.org/
 5. Leaflet Routing Machine: http://www.liedman.net/leaflet-routing-machine/
 6. Geocoder: https://geocoder.readthedocs.io/
+7. Python: https://www.python.org/
 
 If I missed your credit, this was not intentional, please inform me and I will add you to the list.
