@@ -15,10 +15,21 @@ Libraries included are:
 7. Variety of Python Native Libraries (OS, Time, Threading, SQLite3, etc.)
 8. Cx_Freeze (Packaging Python Code; Developed by Anthony Tuininga)
 
+# Build.Rar
+This archive holds a current executable to run Pathfinder. Download the archive, unzip it, and the executable is within. The executable
+only runs on Windows at this time. 
+
+Testing Machine:
+CPU: i7-4790 3.6GHz
+RAM: 8GB
+OS: Windows 10 64bit
+
+
+
 This program is currently licensed under the MIT License. Libraries in the credits have their own licenses. Please review these before 
 any changes are made. 
 
-Credits:
+# Credits
 1. OpenRouteService: https://github.com/GIScience/openrouteservice
 2. Folium: https://github.com/python-visualization/folium
 3. PIL: https://pillow.readthedocs.io/en/stable/
