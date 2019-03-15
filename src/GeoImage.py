@@ -7,7 +7,6 @@ import hashlib
 import time, os
 import wx
 import geocoder
-from reportlab.pdfgen import canvas
 import WxPathfinder as main
 from pubsub import pub
 from threading import Thread

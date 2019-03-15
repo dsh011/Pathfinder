@@ -7,13 +7,11 @@ from folium import IFrame
 from folium import plugins
 from folium.plugins import Draw, MarkerCluster
 from folium.plugins import routingmachine as rm
-import routingmachine
 from SQLConn import *
 import base64
 import time
 import geocoder
 from GeoImage import *
-import wx.grid as gridlib
 import sqlite3
 from geojson import Feature, Point, FeatureCollection
 import openrouteservice
@@ -317,14 +315,14 @@ Data uses <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a> license'
 			dlg.Destroy()
 
 	def openHTMLMap(self, e):
-		with wx.FileDialog(self, "Open HTML file", wildcard="html files (*.html)|*.html", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+		with wx.FileDialog(self, "Open HTML file", wildcard="html files (*.html, *.htm)|*.html", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
 			if fileDialog.ShowModal() == wx.ID_CANCEL:
 				return     # the user changed their mind
 
 			pathname = fileDialog.GetPath()
 		self.botP.thumbnail.ShowDir(os.path.dirname(pathname) + "/Thumbnails")
 		self.displayTree(e)
-		self.rightP.browser.LoadURL(pathname)
+		self.rightP.browser.LoadURL(r'file://' + str(pathname))
 
 	#Calls function to extract data from photos
 	def dataExtract(self, e):
@@ -476,7 +474,10 @@ Data uses <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a> license'
 			
 
 
-if __name__ == "__main__":
+def main():
 	app = wx.App(False)
 	Init(None, "Database Selection")
 	app.MainLoop()
+
+if __name__ == "__main__":
+	main()
