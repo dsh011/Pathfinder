@@ -21,9 +21,9 @@ This archive holds a current Microsoft Installer file to install Pathfinder. Dow
 ## Extra Setup
 After installing the program, there is a slight change that needs to be made. In order to open maps properly, launch regedit and
 navigate to **Computer\HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_BROWSER_EMULATION**
-(might vary depending on your installation). After navigating, right click, hover over new, and select DWORD. A new value should
+(might vary depending on your installation). After navigating, right click, hover over new, and select **DWORD**. A new value should
 have been created. Right click the new value and changed the value name to without quotes "Pathfinder.exe" and set the **DECIMAL** value 
-to 11001. Once finished, exit regedit and launch Pathfinder.
+to **11001**. Once finished, exit regedit and launch Pathfinder.
 
 # Testing Machine
 
