@@ -57,6 +57,8 @@ L.Routing.control({
 If you're going to be doing bulk requests, please use a different geocoding service. See this link to see how
 to change the service. http://www.liedman.net/leaflet-routing-machine/tutorials/geocoders/
 
+The changes will need to be made in the plugins folder within the Folium library directory. 
+
 I personally have tested MapBox as a geocoding service and it works and it's free to a limit. https://www.mapbox.com/
 
 
