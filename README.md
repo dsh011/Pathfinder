@@ -54,6 +54,13 @@ L.Routing.control({
     geocoder: new L.Control.Geocoder.Nominatim()
 }).addTo(map);
 ```
+
+Within GeoImage.py find this and refer to this documentation https://geocoder.readthedocs.io/:
+
+```
+g = geocoder.osm([lat, lon], method='reverse')
+```
+
 If you're going to be doing bulk requests, please use a different geocoding service. See this link to see how
 to change the service. http://www.liedman.net/leaflet-routing-machine/tutorials/geocoders/
 
