@@ -39,6 +39,20 @@ any changes are made.
 **Note** The Nominatim (Geocoding) service has a usage policy. Please see the link for their usage policy. https://operations.osmfoundation.org/policies/nominatim/
 Using this service was just for demonstration purposes and should not be used commercially for bulk requests.
 
+To use your own routing service URL, find the routingmachine.py file and look for the line similar to this and add your URL
+service:
+
+```
+L.Routing.control({
+    waypoints: [
+        L.latLng(57.74, 11.94),
+        L.latLng(57.6792, 11.949)
+    ],
+    router: new L.Routing.OSRMv1({
+        serviceUrl: url_to_your_service
+    })
+}).addTo(map);
+```
 
 
 # Credits
