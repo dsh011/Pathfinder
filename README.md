@@ -36,6 +36,11 @@ OS: Windows 10 64bit
 This program is currently licensed under the MIT License. Libraries in the credits have their own licenses. Please review these before 
 any changes are made. 
 
+**Note** The Nominatim (Geocoding) service has a usage policy. Please see the link for their usage policy. https://operations.osmfoundation.org/policies/nominatim/
+Using this service was just for demonstration purposes and should not be used commercially for bulk requests.
+
+
+
 # Credits
 1. OpenRouteService: https://github.com/GIScience/openrouteservice
 2. Folium: https://github.com/python-visualization/folium
