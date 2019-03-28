@@ -38,7 +38,7 @@ any changes are made.
 
 # Geocoding Service
 **Note** The Nominatim (Geocoding) service has a usage policy. Please see the link for their usage policy. https://operations.osmfoundation.org/policies/nominatim/
-Using this service was just for demonstration purposes and is not recommended to be used commercially for bulk requests.
+Using this service was just for demonstration and proof of concept purposes and is not recommended to be used commercially for bulk requests.
 
 To use your own routing service URL, find the routingmachine.py (in the plugins directory of the Folium Directory) file and look for the line similar to this and add your URL service:
 
