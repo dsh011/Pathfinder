@@ -16,7 +16,7 @@ Libraries included are:
 8. Cx_Freeze (Packaging Python Code; Developed by Anthony Tuininga)
 
 # Installer.Rar
-This archive holds a current Microsoft Installer file to install Pathfinder. Download the archive, unzip it, and the executable is within. The executable only runs on Windows at this time. 
+This archive holds a current Microsoft Installer file to install Pathfinder. Download the archive, unzip it, and the executable is within. The executable only runs on Windows at this time. **This installation is a proof of concept and not recommended for commercial use at this time due to usage policies in geocoding.**
 
 ## Extra Setup
 After installing the program, there is a slight change that needs to be made. In order to open maps properly, launch regedit and
@@ -38,10 +38,9 @@ any changes are made.
 
 # Geocoding Service
 **Note** The Nominatim (Geocoding) service has a usage policy. Please see the link for their usage policy. https://operations.osmfoundation.org/policies/nominatim/
-Using this service was just for demonstration purposes and should not be used commercially for bulk requests.
+Using this service was just for demonstration purposes and is not recommended to be used commercially for bulk requests.
 
-To use your own routing service URL, find the routingmachine.py file and look for the line similar to this and add your URL
-service:
+To use your own routing service URL, find the routingmachine.py (in the plugins directory of the Folium Directory) file and look for the line similar to this and add your URL service:
 
 ```
 L.Routing.control({
