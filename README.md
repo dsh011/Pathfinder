@@ -40,7 +40,7 @@ any changes are made.
 **Note** The Nominatim (Geocoding) service has a usage policy. Please see the link for their usage policy. https://operations.osmfoundation.org/policies/nominatim/
 Using this service was just for demonstration and proof of concept purposes and is not recommended to be used commercially for bulk requests.
 
-To use your own routing service URL, find the routingmachine.py (in the plugins directory of the Folium Directory) file and look for the line similar to this and add your URL service:
+To use your own routing service URL, find the routingmachine.py (in the plugins directory of the Folium Directory) file and look for the line similar to this and add your URL service, same goes with the geocoder:
 
 ```
 L.Routing.control({
@@ -50,7 +50,8 @@ L.Routing.control({
     ],
     router: new L.Routing.OSRMv1({
         serviceUrl: url_to_your_service
-    })
+    }),
+    geocoder: new L.Control.Geocoder.Nominatim()
 }).addTo(map);
 ```
 If you're going to be doing bulk requests, please use a different geocoding service. See this link to see how
@@ -59,6 +60,8 @@ to change the service. http://www.liedman.net/leaflet-routing-machine/tutorials/
 The changes will need to be made in the plugins folder within the Folium library directory. 
 
 I personally have tested MapBox as a geocoding service and it works and it's free to a limit. https://www.mapbox.com/
+
+At this time a way to dynamically switch between the two is unavailabe in this version, but can be added at a later time.
 
 
 # Credits
