@@ -53,6 +53,10 @@ L.Routing.control({
     })
 }).addTo(map);
 ```
+If you're going to be doing bulk requests, please use a different geocoding service. See this link to see how
+to change the service. http://www.liedman.net/leaflet-routing-machine/tutorials/geocoders/
+
+I personally have tested MapBox as a geocoding service and it works and it's free to a limit. https://www.mapbox.com/
 
 
 # Credits
